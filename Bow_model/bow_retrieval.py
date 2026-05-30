@@ -11,8 +11,15 @@ from nltk.corpus import stopwords
 
 import nltk
 
-nltk.download('punkt')
-nltk.download('stopwords')
+try:
+    nltk.data.find("tokenizers/punkt")
+except LookupError:
+    nltk.download("punkt")
+
+try:
+    nltk.data.find("tokenizers/punkt_tab")
+except LookupError:
+    nltk.download("punkt_tab")
 
 try:
     df = pd.read_csv("Bow_model/final_perfume_data_labeled.csv", encoding='utf-8', encoding_errors='replace', sep=";",)
