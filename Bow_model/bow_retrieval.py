@@ -103,12 +103,12 @@ nb.fit(training_data_bow, y_train)
 def bow_retrieval(query, top_k=3):
     tokens = preprocessor(query)
     query_bow = bow.transform([tokens])
-    probs = nb.predict_proba(query_bow)
+    pred_label = nb.predict(query_bow)[0]
 
-    similarity_scores = cosine_similarity(
-        probs,
-        perfume_family_matrix
-    )[0]
+similarity_scores = np.array([
+    1 if pred_label in df.iloc[i]["families_list"] else 0
+    for i in range(len(df))
+])
 
     top_indices = np.argsort(similarity_scores)[::-1][:top_k]
 
