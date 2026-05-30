@@ -105,22 +105,22 @@ def bow_retrieval(query, top_k=3):
     query_bow = bow.transform([tokens])
     pred_label = nb.predict(query_bow)[0]
 
-similarity_scores = np.array([
-    1 if pred_label in df.iloc[i]["families_list"] else 0
-    for i in range(len(df))
-])
-
-    top_indices = np.argsort(similarity_scores)[::-1][:top_k]
-
-    results = []
-
-    for i in top_indices:
-        perfume = df.iloc[i]
-        results.append({
-            "name": perfume["Name"],
-            "notes": perfume["Notes"],
-            "description": perfume["Description"],
-            "score": float(similarity_scores[i])
-        })
-
-    return results
+    similarity_scores = np.array([
+        1 if pred_label in df.iloc[i]["families_list"] else 0
+        for i in range(len(df))
+    ])
+    
+        top_indices = np.argsort(similarity_scores)[::-1][:top_k]
+    
+        results = []
+    
+        for i in top_indices:
+            perfume = df.iloc[i]
+            results.append({
+                "name": perfume["Name"],
+                "notes": perfume["Notes"],
+                "description": perfume["Description"],
+                "score": float(similarity_scores[i])
+            })
+    
+        return results
