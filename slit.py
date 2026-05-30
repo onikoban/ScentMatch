@@ -132,11 +132,10 @@ if st.session_state.results_generated:
             "top_a": st.session_state.left_results[0]["name"],
             "top_b": st.session_state.right_results[0]["name"]
         }
-        import json
         log_to_sheet(
             feedback,
             st.secrets["GOOGLE_SHEET_ID"],
-            json.loads(st.secrets["GOOGLE_SERVICE_ACCOUNT"]) 
+            st.secrets["GOOGLE_SERVICE_ACCOUNT"])
         )
 
         st.success("Evaluation submitted successfully.")
