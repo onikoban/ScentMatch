@@ -1,10 +1,9 @@
 import streamlit as st
-import pandas as pd
-import os
 import random
 
 from Embedding_Model.retrieval import Retrieval
 from Bow_model.bow_retrieval import bow_retrieval
+from utils.logger import log_to_sheet
 
 st.set_page_config(
     page_title="ScentMatch",
@@ -13,8 +12,6 @@ st.set_page_config(
 
 st.title("ScentMatch")
 
-
-
 if "results_generated" not in st.session_state:
     st.session_state.results_generated = False
 
@@ -22,8 +19,6 @@ query = st.text_input(
     "Describe the perfume you want",
     placeholder="Example: creamy vanilla for winter nights"
 )
-
-
 
 if st.button("Get Recommendations"):
 
@@ -52,17 +47,13 @@ if st.button("Get Recommendations"):
         st.session_state.results_generated = True
 
 
-
 if st.session_state.results_generated:
 
     st.divider()
 
-    st.markdown(
-        f"### Query: *{st.session_state.query}*"
-    )
+    st.markdown(f"### Query: *{st.session_state.query}*")
 
     col1, col2 = st.columns(2)
-
 
     with col1:
 
@@ -71,21 +62,11 @@ if st.session_state.results_generated:
         for perfume in st.session_state.left_results:
 
             with st.container(border=True):
-
-                st.markdown(
-                    f"### {perfume['name']}"
-                )
-
-                st.markdown(
-                    f"**Notes:** {perfume['notes']}"
-                )
+                st.markdown(f"### {perfume['name']}")
+                st.markdown(f"**Notes:** {perfume['notes']}")
 
                 if "description" in perfume:
-
-                    st.write(
-                        perfume["description"]
-                    )
-
+                    st.write(perfume["description"])
 
     with col2:
 
@@ -94,22 +75,11 @@ if st.session_state.results_generated:
         for perfume in st.session_state.right_results:
 
             with st.container(border=True):
-
-                st.markdown(
-                    f"### {perfume['name']}"
-                )
-
-                st.markdown(
-                    f"**Notes:** {perfume['notes']}"
-                )
+                st.markdown(f"### {perfume['name']}")
+                st.markdown(f"**Notes:** {perfume['notes']}")
 
                 if "description" in perfume:
-
-                    st.write(
-                        perfume["description"]
-                    )
-
-   
+                    st.write(perfume["description"])
 
     st.divider()
 
@@ -121,34 +91,15 @@ if st.session_state.results_generated:
 
     preferred = st.radio(
         "Which recommendation list was better?",
-        [
-            "Recommendation List A",
-            "Recommendation List B",
-            "Tie"
-        ]
+        ["Recommendation List A", "Recommendation List B", "Tie"]
     )
 
-    relevance_a = st.slider(
-        "Recommendation List A Relevance",
-        1,
-        5,
-        3
-    )
-
-    relevance_b = st.slider(
-        "Recommendation List B Relevance",
-        1,
-        5,
-        3
-    )
+    relevance_a = st.slider("Recommendation List A Relevance", 1, 5, 3)
+    relevance_b = st.slider("Recommendation List B Relevance", 1, 5, 3)
 
     satisfaction = st.radio(
         "Did either list satisfy your need?",
-        [
-            "Yes",
-            "Partially",
-            "No"
-        ]
+        ["Yes", "Partially", "No"]
     )
 
     difficulty = st.slider(
@@ -158,90 +109,34 @@ if st.session_state.results_generated:
         3
     )
 
-    comments = st.text_area(
-        "Additional comments"
-    )
-
-   
+    comments = st.text_area("Additional comments")
 
     if st.button("Submit Evaluation"):
 
-        perfumes_a = " | ".join(
-            [p["name"] for p in st.session_state.left_results]
-        )
-
-        perfumes_b = " | ".join(
-            [p["name"] for p in st.session_state.right_results]
-        )
+        perfumes_a = " | ".join([p["name"] for p in st.session_state.left_results])
+        perfumes_b = " | ".join([p["name"] for p in st.session_state.right_results])
 
         feedback = {
-
-            "name":
-            participant_name,
-
-            "query":
-            st.session_state.query,
-
-            "preferred":
-            preferred,
-
-            "relevance_a":
-            relevance_a,
-
-            "relevance_b":
-            relevance_b,
-
-            "satisfaction":
-            satisfaction,
-
-            "difficulty":
-            difficulty,
-
-            "comments":
-            comments,
-
-            "model_a":
-            st.session_state.left_model,
-
-            "model_b":
-            st.session_state.right_model,
-
-            "perfumes_a":
-            perfumes_a,
-
-            "perfumes_b":
-            perfumes_b,
-
-            "top_a":
-            st.session_state.left_results[0]["name"],
-
-            "top_b":
-            st.session_state.right_results[0]["name"]
-
+            "name": participant_name,
+            "query": st.session_state.query,
+            "preferred": preferred,
+            "relevance_a": relevance_a,
+            "relevance_b": relevance_b,
+            "satisfaction": satisfaction,
+            "difficulty": difficulty,
+            "comments": comments,
+            "model_a": st.session_state.left_model,
+            "model_b": st.session_state.right_model,
+            "perfumes_a": perfumes_a,
+            "perfumes_b": perfumes_b,
+            "top_a": st.session_state.left_results[0]["name"],
+            "top_b": st.session_state.right_results[0]["name"]
         }
 
-        feedback_df = pd.DataFrame(
-            [feedback]
+        log_to_sheet(
+            feedback,
+            st.secrets["GOOGLE_SHEET_ID"],
+            st.secrets["google_service_account"]
         )
 
-        file_path = "evaluation_results.csv"
-
-        if os.path.exists(file_path):
-
-            feedback_df.to_csv(
-                file_path,
-                mode="a",
-                header=False,
-                index=False
-            )
-
-        else:
-
-            feedback_df.to_csv(
-                file_path,
-                index=False
-            )
-
-        st.success(
-            "Evaluation submitted successfully."
-        )
+        st.success("Evaluation submitted successfully.")
