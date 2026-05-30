@@ -7,3 +7,6 @@ torch
 transformers
 scipy
 nltk
+gspread
+gspread-dataframe
+google-auth
