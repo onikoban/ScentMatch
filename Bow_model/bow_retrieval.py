@@ -7,10 +7,19 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from nltk.corpus import stopwords
 
+
+nltk.download("stopwords")
 try:
     nltk.data.find("tokenizers/punkt")
 except LookupError:
     nltk.download("punkt")
+
+try:
+    nltk.data.find("tokenizers/punkt_tab")
+except LookupError:
+    nltk.download("punkt_tab")
+
+
 
 try:
     nltk.data.find("corpora/stopwords")
@@ -36,7 +45,7 @@ def preprocessor(text):
     text = str(text).lower()
     for punct in string.punctuation:
         text = text.replace(punct, "")
-    tokens = nltk.word_tokenize(text)
+    tokens = nltk.word_tokenize(text, language="english"))
     return [w for w in tokens if w not in english_stopwords]
 
 training_data = [
