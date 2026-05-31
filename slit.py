@@ -135,7 +135,7 @@ if st.session_state.results_generated:
         log_to_sheet(
             feedback,
             st.secrets["GOOGLE_SHEET_ID"],
-            st.secrets["GOOGLE_SERVICE_ACCOUNT"]
+            st.secrets["google_service_account"]
         )
 
         st.success("Evaluation submitted successfully.")
